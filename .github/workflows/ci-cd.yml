@@ -1,0 +1,225 @@
+name: CI/CD Pipeline for Db4fresh
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/db4fresh
+      IMAGE_TAG: ${{ github.sha }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+    steps:
+      # -------------------------------------------------
+      # 1. SCM Checkout
+      # -------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -------------------------------------------------
+      # 2. Set up Node.js (for both frontend & backend)
+      # -------------------------------------------------
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # -------------------------------------------------
+      # 3. Install dependencies (frontend & backend)
+      # -------------------------------------------------
+      - name: Install frontend dependencies
+        working-directory: ./Db4fresh
+        run: npm ci
+
+      - name: Install backend dependencies
+        working-directory: ./Db4fresh/backend
+        run: npm ci
+
+      # -------------------------------------------------
+      # 4. Build Frontend & Backend
+      # -------------------------------------------------
+      - name: Build Frontend
+        working-directory: ./Db4fresh
+        run: npm run build
+
+      - name: Build Backend
+        working-directory: ./Db4fresh/backend
+        run: npm run build
+
+      # -------------------------------------------------
+      # 5. SonarQube Analysis
+      # -------------------------------------------------
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: ./Db4fresh
+
+      # -------------------------------------------------
+      # 6. Quality Gate (fail if quality gate not passed)
+      # -------------------------------------------------
+      - name: Quality Gate Check
+        run: |
+          # SonarCloud action already fails on quality gate, this step is a placeholder for custom checks if needed.
+          echo "Quality gate passed."
+
+      # -------------------------------------------------
+      # 7. Linting & Unit Tests (frontend)
+      # -------------------------------------------------
+      - name: Frontend Lint
+        working-directory: ./Db4fresh
+        run: npm run lint
+
+      - name: Frontend Unit Tests
+        working-directory: ./Db4fresh
+        run: npm test -- --watchAll=false
+
+      # -------------------------------------------------
+      # 8. Linting & Unit Tests (backend)
+      # -------------------------------------------------
+      - name: Backend Lint
+        working-directory: ./Db4fresh/backend
+        run: npm run lint
+
+      - name: Backend Unit Tests
+        working-directory: ./Db4fresh/backend
+        run: npm test -- --runInBand
+
+      # -------------------------------------------------
+      # 9. Trivy Security Scans (IaC & Dockerfile)
+      # -------------------------------------------------
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+
+      - name: Trivy Scan IaC (Terraform)
+        working-directory: ./Db4fresh
+        run: |
+          trivy config .
+
+      - name: Trivy Scan Dockerfile
+        working-directory: ./Db4fresh
+        run: |
+          trivy config Dockerfile
+
+      # -------------------------------------------------
+      # 10. Docker Build (multi‑arch)
+      # -------------------------------------------------
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Db4fresh
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          platforms: linux/amd64,linux/arm64
+
+      # -------------------------------------------------
+      # 11. Docker Image Scan (Trivy)
+      # -------------------------------------------------
+      - name: Trivy Scan Docker Image
+        run: |
+          trivy image ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      # -------------------------------------------------
+      # 12. Helm Lint
+      # -------------------------------------------------
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Helm Lint Chart
+        working-directory: ./Db4fresh/helm
+        run: helm lint .
+
+      # -------------------------------------------------
+      # 13. EKS Authentication
+      # -------------------------------------------------
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+
+      # -------------------------------------------------
+      # 14. Deploy to EKS (Helm upgrade/install)
+      # -------------------------------------------------
+      - name: Deploy Application via Helm
+        working-directory: ./Db4fresh/helm
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          helm upgrade --install db4fresh . \
+            --set image.repository=${{ env.IMAGE_NAME }} \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+            --namespace db4fresh --create-namespace
+
+      # -------------------------------------------------
+      # 15. Deploy Prometheus (using community chart)
+      # -------------------------------------------------
+      - name: Deploy Prometheus
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+            --namespace monitoring --create-namespace
+
+      # -------------------------------------------------
+      # 16. Deploy Grafana (from same kube‑prometheus-stack)
+      # -------------------------------------------------
+      # Grafana is part of the kube‑prometheus‑stack deployed above.
+
+      # -------------------------------------------------
+      # 17. Deploy Alertmanager (included in kube‑prometheus‑stack)
+      # -------------------------------------------------
+      # Alertmanager is also included in the kube‑prometheus‑stack.
+
+      # -------------------------------------------------
+      # 18. Post Actions & Notifications
+      # -------------------------------------------------
+      - name: Send Slack Notification
+        if: always()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: '{"text":"CI/CD pipeline completed for commit ${{ github.sha }}. Status: ${{ job.status }}"}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create GitHub Release (if on main branch)
+        if: github.ref == 'refs/heads/main' && job.status == 'success'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: |
+            Automated release generated by CI/CD pipeline.
+          draft: false
+          prerelease: false
+

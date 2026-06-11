@@ -1,0 +1,105 @@
+
+export const translations = {
+  en: {
+    myAccount: "My Account",
+    profile: "Profile",
+    addresses: "Addresses",
+    wallet: "Wallet & Rewards",
+    orders: "Orders",
+    help: "Help & Support",
+    general: "General Info",
+    notifications: "Notifications",
+    language: "Language",
+    deleteAccount: "Delete Account",
+
+    // 🔹 extra keys used in Account.jsx
+    deleteConfirm: "Are you sure? This will permanently delete your account.",
+    accountDeleted: "Account deleted",
+    deleteFailed: "Failed to delete account",
+  },
+
+  te: {
+    myAccount: "నా ఖాతా",
+    profile: "ప్రొఫైల్",
+    addresses: "చిరునామాలు",
+    wallet: "వాలెట్ & రివార్డ్స్",
+    orders: "ఆర్డర్లు",
+    help: "సహాయం",
+    general: "సాధారణ సమాచారం",
+    notifications: "నోటిఫికేషన్లు",
+    language: "భాష",
+    deleteAccount: "ఖాతాను తొలగించండి",
+
+    deleteConfirm: "మీ ఖాతాను శాశ్వతంగా తొలగించాలనుకుంటున్నారా?",
+    accountDeleted: "ఖాతా తొలగించబడింది",
+    deleteFailed: "ఖాతా తొలగించడంలో విఫలమైంది",
+  },
+
+  hi: {
+    myAccount: "मेरा खाता",
+    profile: "प्रोफ़ाइल",
+    addresses: "पते",
+    wallet: "वॉलेट और रिवार्ड्स",
+    orders: "ऑर्डर",
+    help: "सहायता",
+    general: "सामान्य जानकारी",
+    notifications: "सूचनाएं",
+    language: "भाषा",
+    deleteAccount: "खाता हटाएं",
+
+    deleteConfirm: "क्या आप वाकई अपना खाता स्थायी रूप से हटाना चाहते हैं?",
+    accountDeleted: "खाता हटा दिया गया",
+    deleteFailed: "खाता हटाने में विफल",
+  },
+
+  ta: {
+    myAccount: "என் கணக்கு",
+    profile: "சுயவிவரம்",
+    addresses: "முகவரிகள்",
+    wallet: "வாலெட் & பரிசுகள்",
+    orders: "ஆர்டர்கள்",
+    help: "உதவி",
+    general: "பொது தகவல்",
+    notifications: "அறிவிப்புகள்",
+    language: "மொழி",
+    deleteAccount: "கணக்கை நீக்கு",
+
+    deleteConfirm: "உங்கள் கணக்கை நிரந்தரமாக நீக்க வேண்டுமா?",
+    accountDeleted: "கணக்கு நீக்கப்பட்டது",
+    deleteFailed: "கணக்கை நீக்க முடியவில்லை",
+  },
+
+  kn: {
+    myAccount: "ನನ್ನ ಖಾತೆ",
+    profile: "ಪ್ರೊಫೈಲ್",
+    addresses: "ವಿಳಾಸಗಳು",
+    wallet: "ವಾಲೆಟ್ ಮತ್ತು ಬಹುಮಾನಗಳು",
+    orders: "ಆರ್ಡರ್‌ಗಳು",
+    help: "ಸಹಾಯ",
+    general: "ಸಾಮಾನ್ಯ ಮಾಹಿತಿ",
+    notifications: "ಅಧಿಸೂಚನೆಗಳು",
+    language: "ಭಾಷೆ",
+    deleteAccount: "ಖಾತೆ ಅಳಿಸಿ",
+
+    deleteConfirm: "ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲು ಖಚಿತವೇ?",
+    accountDeleted: "ಖಾತೆ ಅಳಿಸಲಾಗಿದೆ",
+    deleteFailed: "ಖಾತೆ ಅಳಿಸಲು ವಿಫಲವಾಗಿದೆ",
+  },
+
+  ml: {
+    myAccount: "എന്റെ അക്കൗണ്ട്",
+    profile: "പ്രൊഫൈൽ",
+    addresses: "വിലാസങ്ങൾ",
+    wallet: "വാലറ്റ് & റിവാർഡ്സ്",
+    orders: "ഓർഡറുകൾ",
+    help: "സഹായം",
+    general: "പൊതു വിവരം",
+    notifications: "അറിയിപ്പുകൾ",
+    language: "ഭാഷ",
+    deleteAccount: "അക്കൗണ്ട് ഇല്ലാതാക്കുക",
+
+    deleteConfirm: "നിങ്ങളുടെ അക്കൗണ്ട് സ്ഥിരമായി ഇല്ലാതാക്കണമോ?",
+    accountDeleted: "അക്കൗണ്ട് ഇല്ലാതാക്കി",
+    deleteFailed: "അക്കൗണ്ട് ഇല്ലാതാക്കാൻ കഴിഞ്ഞില്ല",
+  },
+};
