@@ -205,7 +205,7 @@ jobs:
       # 18. Post Actions & Notifications
       # -------------------------------------------------
       - name: Send Slack Notification
-        if: always() && secrets.SLACK_WEBHOOK_URL != ''
+        if: always() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: '{"text":"CI/CD pipeline completed for commit ${{ github.sha }}. Status: ${{ job.status }}"}'
