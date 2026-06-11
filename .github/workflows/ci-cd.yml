@@ -77,23 +77,23 @@ jobs:
       # 7. Linting & Unit Tests (frontend)
       # -------------------------------------------------
       - name: Frontend Lint
-        working-directory: ./Db4fresh
+        working-directory: .
         run: npm run lint
 
       - name: Frontend Unit Tests
-        working-directory: ./Db4fresh
-        run: npm test -- --watchAll=false
+        working-directory: .
+        run: npm test
 
       # -------------------------------------------------
       # 8. Linting & Unit Tests (backend)
       # -------------------------------------------------
       - name: Backend Lint
-        working-directory: ./Db4fresh/backend
+        working-directory: ./backend
         run: npm run lint
 
       - name: Backend Unit Tests
-        working-directory: ./Db4fresh/backend
-        run: npm test -- --runInBand
+        working-directory: ./backend
+        run: npm test
 
       # -------------------------------------------------
       # 9. Trivy Security Scans (IaC & Dockerfile)
@@ -103,12 +103,12 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
 
       - name: Trivy Scan IaC (Terraform)
-        working-directory: ./Db4fresh
+        working-directory: .
         run: |
           trivy config .
 
       - name: Trivy Scan Dockerfile
-        working-directory: ./Db4fresh
+        working-directory: .
         run: |
           trivy config Dockerfile
 
@@ -205,7 +205,7 @@ jobs:
       # 18. Post Actions & Notifications
       # -------------------------------------------------
       - name: Send Slack Notification
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: '{"text":"CI/CD pipeline completed for commit ${{ github.sha }}. Status: ${{ job.status }}"}'

@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "echo \"No build needed for backend\"",
+    "lint": "echo \"No lint configured\"",
+    "test": "echo \"No tests configured\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

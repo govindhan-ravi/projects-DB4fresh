@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "echo \"No lint configured\"",
+    "test": "echo \"No tests configured\"",
     "zookeeper": "cd /d C:\\kafka\\kafka_2.13-3.9.2 && .\\bin\\windows\\zookeeper-server-start.bat .\\config\\zookeeper.properties",
     "kafka": "cd /d C:\\kafka\\kafka_2.13-3.9.2 && .\\bin\\windows\\kafka-server-start.bat .\\config\\server.properties",
     "backend": "cd backend && npm run dev",
