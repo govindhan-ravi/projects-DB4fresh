@@ -199,7 +199,7 @@ jobs:
       # -------------------------------------------------
       # 17. Deploy Alertmanager (included in kube‑prometheus‑stack)
       # -------------------------------------------------
-      # Alertmanager is also included in the kube‑prometheus‑stack.
+      # Alertmanager  also included in the kube‑prometheus‑stack.
 
       # -------------------------------------------------
       # 18. Post Actions & Notifications

@@ -1,0 +1,9 @@
+# Exclude node_modules and other unnecessary files
+node_modules/
+.git/
+.gitignore
+Dockerfile.frontend
+Dockerfile
+docker-compose.yml
+helm/
+*.log

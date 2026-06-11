@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: db4fresh-backend
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    # If your backend needs a database, uncomment and configure the following:
+    # depends_on:
+    #   - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: db4fresh-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    # If you prefer the single‑file Dockerfile.frontend at project root, use:
+    #   context: .
+    #   dockerfile: Dockerfile.frontend
+
+  # Example MongoDB service (optional)
+  mongo:
+    image: mongo:6.0
+    container_name: db4fresh-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=examplepassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
