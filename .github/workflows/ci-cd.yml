@@ -36,22 +36,22 @@ jobs:
       # 3. Install dependencies (frontend & backend)
       # -------------------------------------------------
       - name: Install frontend dependencies
-        working-directory: ./Db4fresh
+        working-directory: .
         run: npm ci
 
       - name: Install backend dependencies
-        working-directory: ./Db4fresh/backend
+        working-directory: ./backend
         run: npm ci
 
       # -------------------------------------------------
       # 4. Build Frontend & Backend
       # -------------------------------------------------
       - name: Build Frontend
-        working-directory: ./Db4fresh
+        working-directory: .
         run: npm run build
 
       - name: Build Backend
-        working-directory: ./Db4fresh/backend
+        working-directory: ./backend
         run: npm run build
 
       # -------------------------------------------------
@@ -63,7 +63,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          projectBaseDir: ./Db4fresh
+          projectBaseDir: .
 
       # -------------------------------------------------
       # 6. Quality Gate (fail if quality gate not passed)
@@ -130,7 +130,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./Db4fresh
+          context: .
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           platforms: linux/amd64,linux/arm64
@@ -151,7 +151,7 @@ jobs:
           version: v3.14.0
 
       - name: Helm Lint Chart
-        working-directory: ./Db4fresh/helm
+        working-directory: ./helm
         run: helm lint .
 
       # -------------------------------------------------
@@ -172,7 +172,7 @@ jobs:
       # 14. Deploy to EKS (Helm upgrade/install)
       # -------------------------------------------------
       - name: Deploy Application via Helm
-        working-directory: ./Db4fresh/helm
+        working-directory: ./helm
         env:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
